@@ -1,0 +1,170 @@
+{% extends 'core/base.html' %}
+
+
+
+{% block body %}
+<div
+  class="mx-auto max-w-3xl rounded-3xl bg-white p-8 shadow-sm dark:bg-slate-900">
+  <div class="mb-8">
+    <h1 class="text-3xl font-semibold text-slate-900 dark:text-slate-100">Registration</h1>
+    <p class="mt-3 text-slate-600 dark:text-slate-400">Add a new class with all
+      required details and upload a book cover image.</p>
+  </div>
+
+  <form action method="POST" enctype="multipart/form-data" class="space-y-6">
+    {% csrf_token %}
+
+    <div class="space-y-4">
+      <fieldset>
+        <legend>Student Information</legend>
+        <div class="grid grid-cols-1 gap-4">
+          <div>
+            {{ student_form.full_name.label_tag }}
+            {{ student_form.full_name }}
+          </div>
+
+          <div>
+            {{ student_form.gender.label_tag }}
+            {{ student_form.gender }}
+          </div>
+
+          <div>
+            {{ student_form.age.label_tag }}
+            {{ student_form.age }}
+          </div>
+
+          <div>
+            {{ student_form.school.label_tag }}
+            {{ student_form.school }}
+          </div>
+
+          <div>
+            {{ student_form.academic_grade.label_tag }}
+            {{ student_form.academic_grade }}
+          </div>
+
+          <div>
+            {{ student_form.address.label_tag }}
+            {{ student_form.address }}
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-200">Photo</label>
+            <div class="mt-2 flex items-center gap-4">
+              <div>
+              </div>
+              <div>
+                <button type="button" id="openCamera" class="inline-flex items-center rounded-md bg-slate-700 px-3 py-2 text-sm text-white">Take Photo</button>
+              </div>
+            </div>
+
+            <div id="cameraContainer" class="mt-4 hidden">
+              <video id="video" autoplay playsinline style="max-width:240px; border-radius:8px;" ></video>
+              <div class="mt-2">
+                <button type="button" id="captureBtn" class="inline-flex items-center rounded-md bg-green-600 px-3 py-2 text-sm text-white">Capture</button>
+                <button type="button" id="closeCamera" class="inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-sm text-white">Close</button>
+              </div>
+              <canvas id="canvas" class="mt-2 hidden" style="max-width:240px; border-radius:8px;"></canvas>
+            </div>
+
+            <input type="hidden" name="photo_data" id="photo_data" />
+          </div>
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="space-y-4">
+      <fieldset>
+        <legend>Parent 1 Information</legend>
+        {{ parent1_form.as_p }}
+      </fieldset>
+    </div>
+
+    <div class="space-y-4">
+      <fieldset>
+        <legend>Parent 2 Information</legend>
+        {{ parent2_form.as_p }}
+      </fieldset>
+    </div>
+
+    {% if student_form.errors or parent1_form or parent2_form or non_field_errors%}
+    <div
+      class="rounded-3xl bg-red-50 p-6 text-sm text-white dark:bg-red-950 text-white">
+      {% for field in form %}
+      {{ field.errors }}
+      {% endfor %}
+      {{ non_field_errors }}
+    </div>
+    {% endif %}
+
+    <button
+      class="inline-flex rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300">Save
+      class</button>
+  
+    <script>
+      (function(){
+        const openBtn = document.getElementById('openCamera');
+        const cameraContainer = document.getElementById('cameraContainer');
+        const video = document.getElementById('video');
+        const captureBtn = document.getElementById('captureBtn');
+        const closeBtn = document.getElementById('closeCamera');
+        const canvas = document.getElementById('canvas');
+        const photoInput = document.getElementById('photo_data');
+        let stream = null;
+
+        function stopStream(){
+          if(stream){
+            stream.getTracks().forEach(t => t.stop());
+            stream = null;
+          }
+        }
+
+        openBtn.addEventListener('click', async function(){
+          try{
+            stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            video.srcObject = stream;
+            cameraContainer.classList.remove('hidden');
+            canvas.classList.add('hidden');
+          }catch(err){
+            alert('Unable to access camera: ' + err.message);
+          }
+        });
+
+        captureBtn.addEventListener('click', function(){
+          if(!stream) return;
+          const w = video.videoWidth;
+          const h = video.videoHeight;
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(video, 0, 0, w, h);
+          // show preview
+          canvas.classList.remove('hidden');
+          // convert to data URL (jpeg)
+          const dataURL = canvas.toDataURL('image/jpeg');
+          photoInput.value = dataURL;
+          // stop camera after capture
+          stopStream();
+          video.srcObject = null;
+        });
+
+        closeBtn.addEventListener('click', function(){
+          stopStream();
+          video.srcObject = null;
+          cameraContainer.classList.add('hidden');
+        });
+
+        // when user selects a file via the file input, clear the photo_data hidden field
+        const fileInput = document.querySelector('input[type=file][name$="photo"]') || document.querySelector('input[type=file]');
+        if(fileInput){
+          fileInput.addEventListener('change', function(){
+            if(fileInput.files && fileInput.files.length > 0){
+              photoInput.value = '';
+            }
+          });
+        }
+      })();
+    </script>
+  </form>
+</div>
+{% endblock %}

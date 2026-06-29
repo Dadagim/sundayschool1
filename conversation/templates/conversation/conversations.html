@@ -1,0 +1,101 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Conversations{% endblock %}
+
+{% block body %}
+<div class="mx-auto max-w-5xl space-y-8">
+  <div class="rounded-3xl bg-white p-8 shadow-sm dark:bg-slate-900">
+    <div class="mb-8">
+      <h1 class="text-3xl font-semibold text-slate-900 dark:text-slate-100">Conversations</h1>
+      <p class="mt-3 text-slate-600 dark:text-slate-400">Start a new conversation, review unread messages, or open an existing thread.</p>
+    </div>
+
+    {% if messages %}
+    <div class="mb-6 space-y-3">
+      {% for message in messages %}
+      <div class="rounded-3xl {% if message.tags == 'error' %}bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300{% else %}bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300{% endif %} p-4">
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div class="rounded-3xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-800 dark:bg-slate-800">
+        <p class="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Inbox</p>
+        <p class="mt-4 text-4xl font-semibold text-slate-900 dark:text-slate-100">{{ inbox_count|default:'0' }}</p>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">Conversations with unread messages</p>
+      </div>
+      <div class="rounded-3xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-800 dark:bg-slate-800">
+        <p class="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Notifications</p>
+        <p class="mt-4 text-4xl font-semibold text-slate-900 dark:text-slate-100">{{ notification_count|default:'0' }}</p>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">Unread messages waiting for you</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid gap-8 xl:grid-cols-2">
+    <section class="rounded-3xl bg-white p-8 shadow-sm dark:bg-slate-900">
+      <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-4">Your Conversations</h2>
+      {% if conversations %}
+      <ul class="space-y-4">
+        {% for conv in conversations %}
+        <li class="overflow-hidden rounded-3xl border border-slate-200 transition hover:border-slate-300 hover:bg-slate-50 dark:border-slate-800 dark:hover:border-slate-700 dark:hover:bg-slate-800">
+          <a href="{% url 'conversation:conversation' conv.id %}" class="block px-6 py-5">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p class="font-semibold text-slate-900 dark:text-slate-100">
+                  {% for member in conv.members.all %}
+                    {% if member != request.user %}
+                      {{ member.get_full_name|default:member.username }}
+                    {% endif %}
+                  {% endfor %}
+                </p>
+                <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Last modified: {{ conv.modified_at|date:'M d, Y H:i' }}</p>
+              </div>
+              <div class="flex items-center gap-3">
+                {% if conv.unread_count %}
+                <span class="inline-flex items-center rounded-full bg-emerald-500 px-3 py-1 text-sm font-semibold text-white">{{ conv.unread_count }} new</span>
+                {% endif %}
+                <span class="text-slate-500 dark:text-slate-400">→</span>
+              </div>
+            </div>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <div class="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
+        <p class="text-lg font-medium">No conversations yet.</p>
+        <p class="mt-2">Start one from the list on the right.</p>
+      </div>
+      {% endif %}
+    </section>
+
+    <section class="rounded-3xl bg-white p-8 shadow-sm dark:bg-slate-900">
+      <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-4">Start a New Conversation</h2>
+      {% if teachers %}
+      <ul class="space-y-4">
+        {% for teacher in teachers %}
+        <li class="rounded-3xl border border-slate-200 transition hover:border-slate-300 hover:bg-slate-50 dark:border-slate-800 dark:hover:border-slate-700 dark:hover:bg-slate-800">
+          <a href="{% url 'conversation:new_conversations' teacher.id %}" class="block px-6 py-5">
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <p class="font-medium text-slate-900 dark:text-slate-100">{{ teacher.get_full_name|default:teacher.username }}</p>
+                <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Start a new conversation</p>
+              </div>
+              <span class="text-slate-500 dark:text-slate-400">→</span>
+            </div>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <div class="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
+        <p class="text-lg font-medium">No available users to message.</p>
+      </div>
+      {% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}

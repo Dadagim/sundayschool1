@@ -1,0 +1,15 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Attendance{% endblock %}
+
+{% block body %}
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'error' %}
+            <h1 class="text-3xl font-semibold text-slate-900 dark:text-slate-100">{{ message }}</h1>
+            {% else %}
+            <h1 class="text-3xl  font-semibold text-red-400">{{ message }}</h1>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endblock %}

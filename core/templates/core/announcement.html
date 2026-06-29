@@ -1,0 +1,54 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block body %}
+<div class="mx-auto max-w-3xl rounded-3xl bg-white p-8 shadow-sm dark:bg-slate-900">
+  <div class="mb-8">
+    <h1 class="text-3xl font-semibold text-slate-900 dark:text-slate-100">{{ title }}</h1>
+    <p class="mt-3 text-slate-600 dark:text-slate-400">New Announcements this week</p>
+  </div>
+
+        <ul>
+        {% for announcement in announcements %}
+            <li class="bg-black text-white p-5 m-8 border border-green-300 w-[60%] rounded-3xl">
+                <p class="m-5">{{announcement.message}} </p>
+
+                <p class="bg-white/30 p-2 rounded-xl m-3 my-3">{{ announcement.sent_by }} |@ {{announcement.date}}</p>
+            </li>
+            {% if announcement.image %}
+                <img src="{{ announcement.image.url }}" alt="">
+
+                {% endif %}
+
+        {% endfor %}
+
+
+        </ul>
+
+
+{% if user.is_superuser %}
+          <form action="" method="POST" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+
+            <div class="space-y-4">
+              {{ form.as_p }}
+            </div>
+
+            {% if form.errors or non_field_errors %}
+            <div class="rounded-3xl bg-red-50 p-6 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
+              {% for field in form %}
+                {{ field.errors }}
+              {% endfor %}
+              {{ non_field_errors }}
+            </div>
+            {% endif %}
+
+            <button class="inline-flex rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold
+             text-white transition hover:bg-slate-800 dark:bg-slate-200 dark:text-slate-900
+              dark:hover:bg-slate-300">Send</button>
+          </form>
+
+    {% endif %}
+</div>
+
+{% endblock %}

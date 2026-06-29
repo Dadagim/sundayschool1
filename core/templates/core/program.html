@@ -1,0 +1,72 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Attendance{% endblock %}
+
+{% block body %}
+<div class="space-y-8">
+  <div class="rounded-3xl bg-white p-8 shadow-sm dark:bg-slate-900">
+    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div>
+        <h1 class="text-3xl font-semibold text-slate-900 dark:text-slate-100">Monthly Program</h1>
+        <p class="mt-2 text-slate-600 dark:text-slate-400">Please, check what you have and be prepared to serve God.</p>
+      </div>
+      <a href="{% url 'index' %}" class="inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300">Back to classes</a>
+    </div>
+  </div>
+
+  <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+    <table class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 dark:divide-slate-700 dark:text-slate-300">
+      <thead class="bg-slate-50 dark:bg-slate-950">
+        <tr>
+          <th class="px-6 py-4 font-semibold">Date</th>
+          <th class="px-6 py-4 font-semibold">Program Leader</th>
+          <th class="px-6 py-4 font-semibold">Song</th>
+          <th class="px-6 py-4 font-semibold">Memory Verse</th>
+          <th class="px-6 py-4 font-semibold">Bible Lesson</th>
+          <th class="px-6 py-4 font-semibold">Revision Games</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-200 bg-white dark:divide-slate-700 dark:bg-slate-950">
+        {% for program in programs %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800">
+          <td class="px-6 py-4 align-top ">{{ program.date }}</td>
+          <td class="px-6 py-4 align-top {% if program.program_leader == request.user %} text-green-300 {% endif %}">{{ program.program_leader }}</td>
+          <td class="px-6 py-4 align-top {% if program.song == request.user %} text-green-300 {% endif %}">{{ program.song }}</td>
+          <td class="px-6 py-4 align-top {% if program.memory_verse == request.user %} text-green-300 {% endif %}" >{{ program.memory_verse }}</td>
+          <td class="px-6 py-4 align-top {% if program.bible_lesson == request.user %} text-green-300 {% endif %}">{{ program.bible_lesson }}</td>
+          <td class="px-6 py-4 align-top">{{ program.games }}</td>
+
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+    {% if user.is_superuser %}
+      <div class="rounded-3xl bg-slate-50 p-10 text-center text-slate-600 shadow-sm dark:bg-slate-950 dark:text-slate-300">
+        <h2 class="text-xl font-semibold mb-3">Add Next Program</h2>
+          <form action="#" method="post">
+              {% csrf_token %}
+              <div class="flex items-start flex-wrap">{{ form.as_p }}</div>
+
+                  {% if form.errors or non_field_errors %}
+    <div class="rounded-3xl bg-red-50 p-6 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
+      {% for field in form %}
+        {{ field.errors }}
+      {% endfor %}
+      {{ non_field_errors }}
+    </div>
+    {% endif %}
+
+    <button class="inline-flex  my-4 rounded-full bg-slate-900 px-6 py-3
+    text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300">Save Program</button>
+
+
+
+
+          </form>
+
+      </div>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Attendance{% endblock %}
+
+{% block body %}
+<!--header info -->
+<div class="space-y-8">
+  <div class="rounded-3xl bg-white p-8 shadow-sm dark:bg-slate-900">
+    <div
+      class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div>
+        <h1
+          class="text-3xl font-semibold text-slate-900 dark:text-slate-100">Students
+          Mark list</h1>
+        <p class="mt-2 text-slate-600 dark:text-slate-400">Take mark score on
+          different assessements.</p>
+      </div>
+      <a href=""
+        class="inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300">Back
+        to classes</a>
+    </div>
+  </div>
+  <!--  student and their info in table format-->
+  <form action="{% url 'core:attend' %}" method="post">
+    {% csrf_token %}
+
+      <select name="semester" id="">
+          <option disabled selected>Semester</option>
+          <option value="First Semester">First Semester</option>
+          <option value="Second Semester">Second Semester</option>
+      </select>
+
+    <div
+      class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+
+      <table
+        class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 dark:divide-slate-700 dark:text-slate-300">
+        <thead class="bg-slate-50 dark:bg-slate-950">
+          <!--      headers of the table-->
+          <tr>
+            <th class="px-6 py-4 font-semibold">Student</th>
+            <th class="px-6 py-4 font-semibold">Age</th>
+            <th class="px-6 py-4 font-semibold">Grade</th>
+            <th class="px-6 py-4 font-semibold">School</th>
+            <th class="px-6 py-4 font-semibold">Last update</th>
+            <th class="px-6 py-4 font-semibold">Attendance</th>
+          </tr>
+        </thead>
+
+        <!--        table body-->
+        <tbody
+          class="divide-y divide-slate-200 bg-white dark:divide-slate-700 dark:bg-slate-950">
+          {% for student in students %}
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800">
+            <td class="px-6 py-4 align-top">{{ student.full_name }}</td>
+            <td class="px-6 py-4 align-top">{{ student.age }}</td>
+            <td class="px-6 py-4 align-top">{{ student.academic_level }}</td>
+            <td class="px-6 py-4 align-top">{{ student.school }}</td>
+            <td class="px-6 py-4 align-top">{{ student.attendance.date }}</td>
+            <td class="px-6 py-4 align-top">
+              <input type="hidden" value="{{ student.id }}" name="student_id">
+              <input type="hidden" value="{{ classes.pk }}" name="classes_id">
+              <select name="status" id>
+                <option value="Present">PRENSENT</option>
+                <option value="Permisstion">Permisstion</option>
+                <option value="Absent">Absent</option>
+              </select>
+
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+
+      </table>
+
+    </div>
+
+    <button type="submit"
+      class="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300">Save</button>
+
+  </form>
+  <div
+    class="rounded-3xl bg-slate-50 p-10 text-center text-slate-600 shadow-sm dark:bg-slate-950 dark:text-slate-300">
+    <h2 class="text-xl font-semibold">No attendance records yet</h2>
+    <p class="mt-3">Wait until Saturday to start recording attendance.</p>
+  </div>
+</div>
+
+{% endblock %}

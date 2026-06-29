@@ -1,0 +1,59 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ student.name }}{% endblock %}
+
+{% block body %}
+<div class="space-y-8">
+  <div class="rounded-3xl bg-white p-8 shadow-sm dark:bg-slate-900">
+    <div class="grid gap-8 lg:grid-cols-5">
+      <div class="lg:col-span-3 rounded-3xl overflow-hidden bg-slate-100 dark:bg-slate-800">
+        <img src="{{ student.photo.url }}" alt="{{ student.full_name }}" class="h-full w-full object-cover object-center" />
+      </div>
+      <div class="lg:col-span-2 space-y-6">
+        <div>
+          <h1 class="text-3xl font-semibold text-slate-900 dark:text-slate-100"><strong>Name:</strong>{{ student.full_name }}</h1>
+          <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Student profile and attendance summary for {{ student.grades.name }}</p>
+        </div>
+
+        <div class="space-y-4 rounded-3xl bg-slate-50 p-6 dark:bg-slate-950">
+          <div class="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 dark:bg-slate-900">
+            <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Class</span>
+            <span class="text-sm text-slate-600 dark:text-slate-400">Grade {{ student.grades.grade_number }} · {{ student.grades.name }}</span>
+          </div>
+          <div class="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 dark:bg-slate-900">
+            <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Gender</span>
+            <span class="text-sm text-slate-600 dark:text-slate-400"> {% if student.gender == 'M' %} Male {% else %} Female {% endif %}</span>
+          </div>
+            <div class="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 dark:bg-slate-900">
+            <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Age</span>
+            <span class="text-sm text-slate-600 dark:text-slate-400">{{ student.age }} years Old</span>
+          </div>
+          <div class="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 dark:bg-slate-900">
+            <span class="text-sm font-medium text-slate-700 dark:text-slate-300">School</span>
+            <span class="text-sm text-slate-600 dark:text-slate-400">{{ student.school }}</span>
+          </div>
+            <div class="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 dark:bg-slate-900">
+            <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Grade (In school)</span>
+            <span class="text-sm text-slate-600 dark:text-slate-400">{{ student.academic_grade }}th Grade</span>
+          </div>
+
+            <div>
+                <h2>Report Card</h2>
+                <h4>{{ card.semester }}</h4>
+                <ul>
+                    <li><strong>Exercise Book:</strong> {{ card.exercise_book_mark }} %</li>
+                    <li><strong>Test and Assignments:</strong> {{ card.test_assignment_mark }} %</li>
+                    <li><strong>Mid and Final Exams:</strong> {{ card.mid_final_mark }} %</li>
+                    <li><strong>Attendance and ClassActivity:</strong> {{ card.attendance_class_activity_mark }} %</li>
+                    <li><strong>Total sum:</strong> {{ card.total }}/ 400</li>
+                    <li><strong>Average:</strong> {{ card.average_mark }}%</li>
+                    <li><strong>Rank:</strong> {{ card.rank }}</li>
+
+                </ul>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

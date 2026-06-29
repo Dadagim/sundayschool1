@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Print Attendance</title>
+</head>
+<body>
+    <h2>Mark list for {{grade.name }}</h2>
+    <table border="2"  style="width:100%; table-layout:fixed; word-wrap:break-word; word-break:break-all; border-collapse: collapse;">
+
+            <tr>
+                <th>ID</th>
+                <th>students</th>
+                {% for score in categories %}
+                <th>{{score}}</th>
+                {% endfor %}
+            </tr>
+        {% for mark in marks %}
+            <tr>
+                <td>{{ mark.student.pk }}</td>
+                <td>{{ mark.student.full_name }}</td>
+                {% for score in categories %}
+                    {% if score == mark.category %}
+                        <td>{{ mark.score}}</td>
+                    {% endif %}
+                {% endfor %}
+
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+
+</body>
+</html>

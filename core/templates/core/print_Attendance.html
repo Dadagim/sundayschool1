@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Print Attendance</title>
+</head>
+<body style="background-color: white; padding: 10px;">
+    <h2>Mark list for {{ grade.name  }}</h2>
+    <div class="table-responsive">
+    <table class="" border="2" style="width:100%; table-layout:fixed; word-wrap:break-word; word-break:break-all; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th>Student ID</th>
+                <th>Student Name</th>
+                {% for date in attendance_dates %}
+                    <th>{{ date|date:"M d, Y" }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in matrix_data %}
+                <tr>
+                    <td>{{ row.id }}</td>
+                    <td>{{ row.full_name }}</td>
+                    {% for status in row.statuses %}
+                        <td>
+                            <span class="status-badge status-{{ status|lower }}">
+                                {{ status }}
+                            </span>
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="{{ attendance_dates|length|add:2 }}" class="text-center">
+                        No attendance records found.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

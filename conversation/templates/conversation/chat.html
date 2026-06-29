@@ -1,0 +1,56 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block body %}
+<div class="mx-auto max-w-3xl rounded-3xl bg-white p-8 shadow-sm dark:bg-slate-900">
+  <div class="mb-8">
+    <h1 class="text-3xl font-semibold text-slate-900 dark:text-slate-100">{{ title }}</h1>
+    <p class="mt-3 text-slate-600 dark:text-slate-400">Add a new class with all required details and upload a book cover image.</p>
+  </div>
+
+    {% if messages.count > 0 %}
+        <ul>
+        {% for message in messages %}
+            <li class="bg-black w-full {% if message.sender == request.user %} bg-white/30 {% endif %} flex items-end text-white p-5 m-8 border border-green-300 w-[60%] rounded-3xl">
+
+                <p class="">{{message.content}} | @{{message.timestamp}}</p>
+                {% if message.image %}
+                <img src="{{ message.image.url }}" alt="">
+
+                {% endif %}
+            </li>
+
+        {% endfor %}
+
+
+        </ul>
+
+    {% else %}
+    <h2>No messages Yet.</h2>
+{% endif %}
+
+
+
+  <form action="" method="POST" enctype="multipart/form-data" class="space-y-6">
+    {% csrf_token %}
+
+    <div class="space-y-4">
+      {{ form.as_p }}
+    </div>
+
+    {% if form.errors or non_field_errors %}
+    <div class="rounded-3xl bg-red-50 p-6 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
+      {% for field in form %}
+        {{ field.errors }}
+      {% endfor %}
+      {{ non_field_errors }}
+    </div>
+    {% endif %}
+
+    <button class="inline-flex rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold
+     text-white transition hover:bg-slate-800 dark:bg-slate-200 dark:text-slate-900
+      dark:hover:bg-slate-300">Send</button>
+  </form>
+</div>
+
+{% endblock %}
