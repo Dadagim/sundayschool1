@@ -112,10 +112,9 @@ def Register_student(request):
                 parent2 = existing_parent2
 
                 # add to the class that he belongs to
-                grade = get_object_or_404(Grades, academic_year=2018, isActive=True, age_limit=int(new_student.age))
+                grade = Grades.objects.filter(academic_year=2018, isActive=True, age_limit=int(new_student.age)).first()
 
                 if grade is None:
-                    student.grade = None
                     messages.error(request, "Grade not found")
                     return redirect('/register')
 
@@ -135,10 +134,9 @@ def Register_student(request):
 
 
             # add to the class that he belongs to
-            grade = get_object_or_404(Grades, academic_year=2018, isActive=True, age_limit=int(new_student.age))
+            grade = Grades.objects.filter(academic_year=2018, isActive=True, age_limit=int(new_student.age)).first()
 
             if grade is None:
-                student.grade = None
                 messages.error(request, "Grade not found")
                 return redirect('/register')
 
@@ -165,37 +163,66 @@ def Register_student(request):
 def student_detail(request, stud_id):
     try:
         student = Students.objects.get(pk=stud_id)
-        parents = student.parents.all()
-        form = TeachersMessageForm()
-        history = TeachersMessage.objects.filter(student=stud_id)
+        parents = student.parents.all().order_by("role", "full_name")
+        message_form = TeachersMessageForm()
+        student_form = StudentForm(instance=student)
+        history = TeachersMessage.objects.filter(student=student).select_related("teacher").order_by("-created_at")
+        report_cards = ReportCard.objects.filter(student=student).select_related("semester").order_by("semester__id")
+
+        attendance_records = student.attendance.all()
+        present_count = attendance_records.filter(status__in=["Present", "Permission"]).count()
+        total_attendance = attendance_records.count()
+        percentage = round((present_count / total_attendance) * 100) if total_attendance else 0
 
         if request.method == "POST":
-            form = TeachersMessageForm(request.POST)
+            action = request.POST.get("action")
 
-            if form.is_valid():
-                message = form.save(commit=False)
-                message.teacher = request.user
-                message.student = student
-                message.save()
+            if action == "update_student":
+                student_form = StudentForm(request.POST, request.FILES, instance=student)
+                if student_form.is_valid():
+                    student_form.save()
+                    messages.success(request, "Student updated successfully.")
+                    return redirect("core:student", stud_id=student.pk)
+            elif action == "delete_student":
+                grade_id = student.grades_id
+                student.delete()
+                messages.success(request, "Student deleted successfully.")
+                if grade_id:
+                    return redirect("core:detail", grade_id=grade_id)
+                return redirect("core:home")
+            else:
+                message_form = TeachersMessageForm(request.POST)
+                if message_form.is_valid():
+                    message = message_form.save(commit=False)
+                    message.teacher = request.user
+                    message.student = student
+                    message.save()
+                    messages.success(request, "Message saved successfully.")
+                    return redirect("core:student", stud_id=student.pk)
 
-                return redirect("core:student", stud_id)
-
-
-        return render(request, "core/student_detail.html", {"student": student, "parents": parents, "form": form, "history": history})
+        return render(request, "core/student_detail.html", {
+            "student": student,
+            "parents": parents,
+            "form": message_form,
+            "student_form": student_form,
+            "history": history,
+            "report_cards": report_cards,
+            "percentage": percentage,
+        })
     except ObjectDoesNotExist:
         messages.error(request, "Student not found")
         return render(request, "core/404.html")
 
 
 def edit_student(request, stud_id):
-    try:
-        student = Students.objects.get(pk=stud_id)
-        student_form = StudentForm(request.POST, request.FILES, instance=student)
-        parents_form = ParentForm(request.POST, request.FILES)
-        return render(request, "core/student_detail.html", {"student": student})
-    except ObjectDoesNotExist:
-        messages.error(request, "Student not found")
-        return render(request, "core/404.html")
+    student = get_object_or_404(Students, pk=stud_id)
+    if request.method == "POST":
+        form = StudentForm(request.POST, request.FILES, instance=student)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Student updated successfully.")
+            return redirect("core:student", stud_id=student.pk)
+    return redirect("core:student", stud_id=student.pk)
 
 
 
@@ -249,6 +276,25 @@ def attendance_view(request, pk):
 
 
 
+def update_attendance(request, attendance_id):
+    attendance = get_object_or_404(Attendance, pk=attendance_id)
+    if request.method == "POST":
+        status = request.POST.get("status")
+        if status in dict(STATUS).keys():
+            attendance.status = status
+            attendance.save()
+            messages.success(request, "Attendance updated successfully.")
+    return redirect("core:print_attendance", class_pk=attendance.classes_id)
+
+
+def delete_attendance(request, attendance_id):
+    attendance = get_object_or_404(Attendance, pk=attendance_id)
+    class_pk = attendance.classes_id
+    attendance.delete()
+    messages.success(request, "Attendance deleted successfully.")
+    return redirect("core:print_attendance", class_pk=class_pk)
+
+
 def marklist(request, class_pk):
     try:
         students = Students.objects.filter(grades=class_pk)
@@ -287,6 +333,30 @@ def marklist(request, class_pk):
     except Students.DoesNotExist as e:
         messages.error(request, e)
         return render(request, "core/404.html")
+
+
+def update_marklist(request, mark_id):
+    mark = get_object_or_404(MarkList, pk=mark_id)
+    if request.method == "POST":
+        mark.category = request.POST.get("category") or mark.category
+        mark.out_of = request.POST.get("out_of") or mark.out_of
+        mark.score = request.POST.get("score") or mark.score
+        semester_name = request.POST.get("semester")
+        if semester_name:
+            semester = Semesters.objects.filter(name=semester_name).first()
+            if semester:
+                mark.semester = semester
+        mark.save()
+        messages.success(request, "Mark updated successfully.")
+    return redirect("core:print_marklist", class_pk=mark.classes_id)
+
+
+def delete_marklist(request, mark_id):
+    mark = get_object_or_404(MarkList, pk=mark_id)
+    class_pk = mark.classes_id
+    mark.delete()
+    messages.success(request, "Mark deleted successfully.")
+    return redirect("core:print_marklist", class_pk=class_pk)
 
 
 def print_attendance(request, class_pk):
@@ -328,9 +398,12 @@ def print_attendance(request, class_pk):
 
         matrix_data.append(student_row)
 
+    attendance_records = Attendance.objects.filter(classes=grade).select_related('student', 'semester').order_by('-date', 'student__full_name')
+
     context = {
         'attendance_dates': attendance_dates,
         'matrix_data': matrix_data,
+        'attendance_records': attendance_records,
         "grade": grade,
     }
     return render(request, 'core/print_Attendance.html', context)
@@ -359,10 +432,13 @@ def print_marklist(request, class_pk):
 
 
 
+        mark_records = MarkList.objects.filter(classes=grade).select_related('student', 'semester').order_by('student__full_name', 'category')
+
         return render(request, 'core/print_marklist.html', {
             'grade': grade,
             "categories": categories,
             "marks": marks,
+            "mark_records": mark_records,
         })
 
 
@@ -404,10 +480,20 @@ def prepareReportCard(request):
 
 
 def check_card(request, student_pk):
-    student = Students.objects.get(pk=student_pk)
+    student = get_object_or_404(Students, pk=student_pk)
+    parents = student.parents.all().order_by("role", "full_name")
+    cards = ReportCard.objects.filter(student=student).select_related("semester", "grade").order_by("semester__id")
 
-    card = ReportCard.objects.get(student=student)
-    card.rank = card.calc_rank(student)
-    card.save()
+    semester_cards = []
+    for semester_name in ["First Semester", "Second Semester"]:
+        card = next((card for card in cards if getattr(card.semester, "name", "") == semester_name), None)
+        if card is not None:
+            card.rank = card.calc_rank(student)
+            card.save(update_fields=["rank"])
+        semester_cards.append({"name": semester_name, "card": card})
 
-    return render(request, 'core/check_card.html', {"student": student, "card": card})
+    return render(request, 'core/check_card.html', {
+        "student": student,
+        "parents": parents,
+        "semester_cards": semester_cards,
+    })

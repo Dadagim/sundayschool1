@@ -5,7 +5,7 @@
 {% block body %}
 <!--header info -->
 <div class="space-y-8">
-  <div class="rounded-3xl bg-white p-8 shadow-sm dark:bg-slate-900">
+  <div class="rounded-3xl bg-white p-4 shadow-sm dark:bg-slate-900 sm:p-8">
     <div
       class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div>
@@ -24,8 +24,9 @@
   <form action="{% url 'core:marklist' classes.pk %}" method="post">
     {% csrf_token %}
 
-      <h2>Header information</h2>
-      <select name="category" id="">
+      <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+      <h2 class="w-full text-sm font-semibold text-slate-700 dark:text-slate-200">Header information</h2>
+      <select name="category" id="" class="w-full rounded-full border border-slate-300 px-4 py-2 text-sm sm:w-auto">
           <option disabled selected>Assessment Categories</option>
           <option value="Test">Test</option>
           <option value="Exercise Book">Exercise Book</option>
@@ -35,15 +36,16 @@
           <option value="Final Exam">Final Exam</option>
 
       </select>
-      <select name="semester" id="">
+      <select name="semester" id="" class="w-full rounded-full border border-slate-300 px-4 py-2 text-sm sm:w-auto">
           <option disabled selected>Semester</option>
           <option value="First Semester">First Semester</option>
           <option value="Second Semester">Second Semester</option>
       </select>
-      <input type="number" placeholder="Marked out of" name="out_of">
+      <input type="number" placeholder="Marked out of" name="out_of" class="w-full rounded-full border border-slate-300 px-4 py-2 text-sm sm:w-auto">
+      </div>
 
     <div
-      class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+      class="overflow-x-auto rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
 
       <table
         class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 dark:divide-slate-700 dark:text-slate-300">
@@ -69,7 +71,7 @@
             <td class="px-6 py-4 align-top">{{ student.school }}</td>
             <td class="px-6 py-4 align-top">
               <input type="hidden" value="{{ student.id }}" name="student_id">
-               <input type="number" class="border p-1" name="mark" placeholder="mark" >
+               <input type="number" class="w-full rounded-full border border-slate-300 px-3 py-2 text-sm sm:w-auto" name="mark" placeholder="mark" >
 
             </td>
           </tr>
@@ -81,7 +83,7 @@
     </div>
 
     <button type="submit"
-      class="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300">Save</button>
+      class="mt-4 w-full rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300 sm:w-auto">Save</button>
 
   </form>
   <div

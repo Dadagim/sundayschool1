@@ -4,7 +4,7 @@
 
 {% block body %}
 <div class="space-y-8">
-  <div class="rounded-3xl bg-white p-8 shadow-sm dark:bg-slate-900">
+  <div class="rounded-3xl bg-white p-4 shadow-sm dark:bg-slate-900 sm:p-8">
     <div class="grid gap-8 lg:grid-cols-5">
       <div class="lg:col-span-3 rounded-3xl overflow-hidden bg-slate-100 dark:bg-slate-800">
         <img src="{{ student.photo.url }}" alt="{{ student.full_name }}" class="h-full w-full object-cover object-center" />
@@ -55,21 +55,74 @@
       </div>
     </div>
   </div>
+
+  <div class="rounded-3xl bg-white p-8 shadow-sm dark:bg-slate-900">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Manage student</h2>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">Update the student profile or remove this record entirely.</p>
+      </div>
+    </div>
+    <div class="mt-6 grid gap-6 lg:grid-cols-2">
+      <form method="post" enctype="multipart/form-data" class="space-y-4">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update_student" />
+        {{ student_form.as_p }}
+        <button type="submit" class="w-full rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300 sm:w-auto">Save changes</button>
+      </form>
+
+      <form method="post" class="rounded-3xl border border-red-200 bg-red-50 p-5 dark:border-red-900 dark:bg-red-950/40">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="delete_student" />
+        <h3 class="text-lg font-semibold text-red-700 dark:text-red-300">Delete student</h3>
+        <p class="mt-2 text-sm text-red-700/80 dark:text-red-200/80">This action removes the student record and cannot be undone.</p>
+        <button type="submit" class="mt-4 w-full rounded-full bg-red-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-red-500 sm:w-auto">Delete student</button>
+      </form>
+    </div>
+  </div>
 <!-------------------------------------------------parents information=-------------------------------------->
     <hr>
-    <div class="flex flex-wrap gap-3">
+    <div class="rounded-3xl bg-slate-50 p-6 dark:bg-slate-950">
+        <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">Parents / Guardians</h2>
+        <div class="mt-4 grid gap-4 md:grid-cols-2">
             {% for parent in parents %}
-                <h2>Parent 1 ({{ parent.role }})</h2>
-                <p><strong>Name</strong>: {{parent.full_name}}</p>
-                <p><strong>Gender</strong>: {% if parent.sex == 'M' %} Male {% else %} Female {% endif %}</p>
-                <p><strong>Phone Number</strong>: {{parent.phone_number}}</p>
+            <div class="rounded-2xl bg-white p-4 shadow-sm dark:bg-slate-900">
+                <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">{{ parent.role }}</p>
+                <p class="mt-3 text-base font-semibold text-slate-900 dark:text-slate-100">{{ parent.full_name }}</p>
+                <p class="mt-2 text-sm text-slate-600 dark:text-slate-400"><strong>Gender</strong>: {% if parent.sex == 'M' %} Male {% else %} Female {% endif %}</p>
+                <p class="mt-2 text-sm text-slate-600 dark:text-slate-400"><strong>Phone</strong>: {{ parent.phone_number }}</p>
+            </div>
+            {% empty %}
+            <p class="text-sm text-slate-600 dark:text-slate-400">No parent information has been added yet.</p>
             {% endfor %}
         </div>
+    </div>
 
     <hr>
 <!----------------------------Report card for the student ------------------------------------->
-    <a href="{% url 'core:check_card' student.pk %}">Check Report Card</a>
+    <div class="rounded-3xl bg-white p-4 shadow-sm dark:bg-slate-900 sm:p-6">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">Report cards</h2>
+                <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">View the student report card for each semester.</p>
+            </div>
+            <a href="{% url 'core:check_card' student.pk %}" class="inline-flex w-full items-center justify-center rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300 sm:w-auto">Check Report Card</a>
+        </div>
 
+        {% if report_cards %}
+        <div class="mt-6 grid gap-4 md:grid-cols-2">
+            {% for card in report_cards %}
+            <div class="rounded-2xl border border-slate-200 p-4 dark:border-slate-700">
+                <p class="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600">{{ card.semester.name }}</p>
+                <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">Average: {{ card.average_mark|default:"--" }}%</p>
+                <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Rank: {{ card.rank|default:"--" }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="mt-4 text-sm text-slate-600 dark:text-slate-400">No report cards have been generated yet.</p>
+        {% endif %}
+    </div>
 
     <div class="flex flex-col ">
         <h2>Messages about student.</h2>
@@ -81,6 +134,7 @@
         {% endfor %}
         <form action="#" method="post">
             {% csrf_token %}
+            <input type="hidden" name="action" value="save_message" />
             {{ form.as_p }}
             <button type="submit">Save Message</button>
         </form>

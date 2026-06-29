@@ -42,7 +42,7 @@ def announcements(request):
             announce = form.save(commit=False)
             announce.sent_by = request.user
             announce.save()
-            return redirect("announcements")
+            return redirect("conversation:announcements")
 
 
 

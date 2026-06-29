@@ -31,5 +31,61 @@
         </tbody>
     </table>
 
+    <h3 style="margin-top: 30px;">Manage existing mark entries</h3>
+    {% if mark_records %}
+    <table border="2" style="width:100%; margin-top: 10px; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Category</th>
+                <th>Semester</th>
+                <th>Score</th>
+                <th>Out of</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in mark_records %}
+            <tr>
+                <td>{{ record.student.full_name }}</td>
+                <td>
+                    <form method="post" action="{% url 'core:update_marklist' record.pk %}" style="display: inline-flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                        {% csrf_token %}
+                        <select name="category">
+                            <option value="Test" {% if record.category == 'Test' %}selected{% endif %}>Test</option>
+                            <option value="Exercise Book" {% if record.category == 'Exercise Book' %}selected{% endif %}>Exercise Book</option>
+                            <option value="Class Activity" {% if record.category == 'Class Activity' %}selected{% endif %}>Class Activity</option>
+                            <option value="Mid Examination" {% if record.category == 'Mid Examination' %}selected{% endif %}>Mid Examination</option>
+                            <option value="Final Examination" {% if record.category == 'Final Examination' %}selected{% endif %}>Final Examination</option>
+                            <option value="Assignment" {% if record.category == 'Assignment' %}selected{% endif %}>Assignment</option>
+                        </select>
+                </td>
+                <td>
+                        <select name="semester">
+                            <option value="First Semester" {% if record.semester.name == 'First Semester' %}selected{% endif %}>First Semester</option>
+                            <option value="Second Semester" {% if record.semester.name == 'Second Semester' %}selected{% endif %}>Second Semester</option>
+                        </select>
+                </td>
+                <td>
+                        <input type="number" name="score" value="{{ record.score }}" style="width: 70px;" />
+                </td>
+                <td>
+                        <input type="number" name="out_of" value="{{ record.out_of }}" style="width: 70px;" />
+                        <button type="submit">Edit</button>
+                    </form>
+                </td>
+                <td>
+                    <form method="post" action="{% url 'core:delete_marklist' record.pk %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No mark entries to manage yet.</p>
+    {% endif %}
 </body>
 </html>

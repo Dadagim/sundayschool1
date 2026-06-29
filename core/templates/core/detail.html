@@ -6,21 +6,21 @@
 {% block body %}
 <div class="space-y-8">
   <div class="grid gap-6 xl:grid-cols-[1.35fr_0.65fr]">
-    <div class="rounded-[32px] bg-white p-8 shadow-sm dark:bg-slate-900">
+    <div class="rounded-[32px] bg-white p-4 shadow-sm dark:bg-slate-900 sm:p-8">
       <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div class="space-y-4">
           <p class="text-sm font-semibold uppercase tracking-[0.28em] text-emerald-600">Class overview</p>
           <h1 class="text-4xl font-semibold text-slate-900 dark:text-slate-100">{{ grade.name }}</h1>
           <p class="max-w-2xl text-slate-600 dark:text-slate-400">A complete class summary with attendance insights, student counts, and latest records.</p>
         </div>
-        <div class="flex flex-wrap gap-3">
+        <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <a href="" class="inline-flex items-center justify-center rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300">Add student</a>
           <a href="{% url 'core:attendance' grade.pk %}" class="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-900">Attendance</a>
           <a href="{% url 'core:marklist' grade.pk %}" class="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-900">Mark List</a>
         </div>
       </div>
 
-      <div class="mt-8 grid gap-4 md:grid-cols-2">
+      <div class="mt-8 grid gap-4 sm:grid-cols-2">
         <div class="rounded-3xl bg-slate-50 p-6 dark:bg-slate-950">
           <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">Grade</p>
           <p class="mt-3 text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ grade.grade }}</p>
@@ -56,21 +56,21 @@
 
     <!----------------------------Report card for the student ------------------------------------->
     {% if cards == 0 %}
-    <form action="{% url 'core:report_card' %}" method="post">
+    <form action="{% url 'core:report_card' %}" method="post" class="flex flex-col gap-3 sm:flex-row sm:items-center">
         {% csrf_token %}
-        <select name="semester" id="">
+        <select name="semester" id="" class="w-full rounded-full border border-slate-300 px-4 py-2 text-sm sm:w-auto">
             <option value="1">First Semester</option>
             <option value="2">Second Semester</option>
         </select>
         <input type="hidden" name="class_id" value="{{ grade.pk }}">
-        <button type="submit">Prepare ReportCard</button>
+        <button type="submit" class="w-full rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 sm:w-auto">Prepare ReportCard</button>
     </form>
     {% else %}
     <h4>The Report Card is Calculated.No need to calculate again.</h4>
     {% endif %}
 
 
-  <section class="rounded-[32px] bg-white p-8 shadow-sm dark:bg-slate-900">
+  <section class="rounded-[32px] bg-white p-4 shadow-sm dark:bg-slate-900 sm:p-8">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Students</h2>
@@ -79,7 +79,7 @@
       <span class="inline-flex rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-800 dark:bg-slate-950 dark:text-slate-200">Total students: {{ grade.students.count }}</span>
     </div>
 
-    <div class="mt-6 overflow-hidden rounded-[28px] border border-slate-200 dark:border-slate-700">
+    <div class="mt-6 overflow-x-auto rounded-[28px] border border-slate-200 dark:border-slate-700">
       <table class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-700 dark:divide-slate-700 dark:text-slate-300">
         <thead class="bg-slate-50 dark:bg-slate-950">
           <tr>

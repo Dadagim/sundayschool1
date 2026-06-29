@@ -40,5 +40,45 @@
         </tbody>
     </table>
 </div>
+    <h3 style="margin-top: 30px;">Manage existing attendance records</h3>
+    {% if attendance_records %}
+    <table border="2" style="width:100%; margin-top: 10px; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in attendance_records %}
+            <tr>
+                <td>{{ record.student.full_name }}</td>
+                <td>{{ record.date }}</td>
+                <td>
+                    <form method="post" action="{% url 'core:update_attendance' record.pk %}" style="display: inline-flex; gap: 6px; align-items: center;">
+                        {% csrf_token %}
+                        <select name="status">
+                            <option value="Present" {% if record.status == 'Present' %}selected{% endif %}>Present</option>
+                            <option value="Absent" {% if record.status == 'Absent' %}selected{% endif %}>Absent</option>
+                            <option value="Permission" {% if record.status == 'Permission' %}selected{% endif %}>Permission</option>
+                        </select>
+                        <button type="submit">Edit</button>
+                    </form>
+                </td>
+                <td>
+                    <form method="post" action="{% url 'core:delete_attendance' record.pk %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No attendance records to manage yet.</p>
+    {% endif %}
 </body>
 </html>
